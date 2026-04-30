@@ -27,5 +27,17 @@ services:
       db:
         condition: service_healthy
 
+  ssh-server:
+    build:
+      context: ./deploy
+      dockerfile: Dockerfile.ssh
+    environment:
+      SSH_PUBLIC_KEY: ${SSH_PUBLIC_KEY}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./deploy/deploy.sh:/deploy.sh:ro
+    ports:
+      - "2222:22"
+
 volumes:
   postgres_data:

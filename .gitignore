@@ -4,3 +4,5 @@ coverage/
 TODO.md
 DISCOVERY.md
 .idea
+deploy_key
+.env
