@@ -113,3 +113,59 @@ describe('POST /tasks', () => {
     expect(res.body.status).toBe('todo');
   });
 });
+
+describe('PUT /tasks/:id', () => {
+  test('should update a task and return 200', async () => {
+    const updated = { id: 1, title: 'Updated', description: 'New desc', status: 'done' };
+    pool.query.mockResolvedValue({ rows: [updated] });
+
+    const token = generateToken();
+    const res = await request(app)
+      .put('/tasks/1')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'Updated', description: 'New desc', status: 'done' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.title).toBe('Updated');
+    expect(res.body.status).toBe('done');
+  });
+
+  test('should return 404 when task does not exist', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+
+    const token = generateToken();
+    const res = await request(app)
+      .put('/tasks/999')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ title: 'X', status: 'todo' });
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Task not found');
+  });
+});
+
+describe('DELETE /tasks/:id', () => {
+  test('should delete a task and return 200', async () => {
+    pool.query.mockResolvedValue({ rows: [{ id: 1, title: 'Task 1' }] });
+
+    const token = generateToken();
+    const res = await request(app)
+      .delete('/tasks/1')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('Task deleted successfully');
+  });
+
+  test('should return 404 when task does not exist', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+
+    const token = generateToken();
+    const res = await request(app)
+      .delete('/tasks/999')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Task not found');
+  });
+});
